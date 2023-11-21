@@ -1,0 +1,4 @@
+name: LampPowerAPI
+version: '${version}'
+main: org.finetree.lamppowerapi.LampPowerAPI
+api-version: '1.20'

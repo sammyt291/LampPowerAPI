@@ -1,0 +1,57 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+def projectName = 'LampPowerAPI'
+group = 'org.finetree'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "spigotmc-repo"
+        url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
+    }
+    maven {
+        name = "sonatype"
+        url = "https://oss.sonatype.org/content/groups/public/"
+    }
+    maven { url = uri('https://redempt.dev') }
+}
+
+dependencies {
+    compileOnly "org.spigotmc:spigot-api:1.20.2-R0.1-SNAPSHOT"
+    implementation 'com.github.Redempt:RedLib:6.5.8'
+}
+
+def targetJavaVersion = 17
+shadowJar {
+    archiveFileName = projectName + "-" + version + ".jar"
+    relocate 'redempt.redlib', 'org.finetree.finedrawbridges.redlib'
+    destinationDirectory = file('X:/plugins')
+}
+
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    sourceCompatibility = 1.9
+    targetCompatibility = 1.9
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        options.release = targetJavaVersion
+    }
+}
+
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
+    }
+}
