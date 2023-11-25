@@ -3,7 +3,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
-def projectName = 'LampPowerAPI'
+description = 'LampPowerAPI'
 group = 'org.finetree'
 version = '1.0.0'
 
@@ -25,30 +25,28 @@ dependencies {
     implementation 'com.github.Redempt:RedLib:6.5.8'
 }
 
-def targetJavaVersion = 17
-shadowJar {
-    archiveFileName = projectName + "-" + version + ".jar"
-    relocate 'redempt.redlib', 'org.finetree.finedrawbridges.redlib'
-    destinationDirectory = file('X:/plugins')
-}
+java.sourceCompatibility = JavaVersion.VERSION_17
 
-java {
-    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
-    sourceCompatibility = 1.9
-    targetCompatibility = 1.9
-    if (JavaVersion.current() < javaVersion) {
-        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+shadowJar {
+    archiveFileName = project.description + "-" + version + ".jar"
+    relocate 'redempt.redlib', 'org.finetree.lamppowerapi.redlib'
+
+    // Check if running in GitHub Actions
+    if (System.getenv("GITHUB_ACTIONS") == null) {
+        destinationDirectory = file('X:/plugins')
     }
 }
 
 tasks.withType(JavaCompile).configureEach {
-    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-        options.release = targetJavaVersion
-    }
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Javadoc).configureEach {
+    options.encoding = 'UTF-8'
 }
 
 processResources {
-    def props = [version: version]
+    def props = [version: version, name: project.description]
     inputs.properties props
     filteringCharset 'UTF-8'
     filesMatching('plugin.yml') {
